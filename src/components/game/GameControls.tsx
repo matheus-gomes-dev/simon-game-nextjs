@@ -27,7 +27,7 @@ export default function GameControls({
   const showScoreDisplay = status === "playing" || status === "showing";
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4 h-24">
       {showScoreDisplay && (
         <>
           <p className="text-3xl font-bold text-white">Score: {score}</p>
