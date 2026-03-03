@@ -132,6 +132,13 @@ AUTH_SECRET=      # Auth.js secret (min 32 chars)
 AUTH_URL=         # App URL (http://localhost:3000 in dev)
 ```
 
+## Git Workflow
+
+- **PR target branch:** `certification-delivery` (NOT `master`)
+- **Feature branches:** `feat/us-{id}-{short-description}` (e.g., `feat/us-2-register-account`)
+- **Commit prefix:** `feat:`, `fix:`, `refactor:`, `test:`, `docs:`
+- **Commit footer:** Include `AB#{workItemId}` to link Azure DevOps work items
+
 ## Conventions
 
 - Path alias: `@/*` maps to `src/*`
