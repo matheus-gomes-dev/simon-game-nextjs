@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { registerSchema } from "@/lib/validators";
+import FormField from "@/components/ui/FormField";
 
 /** Maps field names to arrays of error messages. */
 type FieldErrors = Record<string, string[]>;
@@ -75,101 +76,33 @@ export default function RegisterForm() {
       noValidate
       className="w-full max-w-md space-y-6"
     >
-      {/* Username field */}
-      <div>
-        <label
-          htmlFor="username"
-          className="block text-sm font-medium text-gray-300"
-        >
-          Username
-        </label>
-        <input
-          id="username"
-          name="username"
-          type="text"
-          required
-          autoComplete="username"
-          aria-describedby={errors.username ? "username-error" : "username-hint"}
-          aria-invalid={errors.username ? "true" : undefined}
-          className="mt-1 block w-full rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Enter your username"
-        />
-        <p id="username-hint" className="mt-1 text-xs text-gray-500">
-          3-20 characters. Letters, numbers, and underscores only.
-        </p>
-        {errors.username && (
-          <div id="username-error" role="alert">
-            {errors.username.map((msg) => (
-              <p key={msg} className="mt-1 text-sm text-red-400">
-                {msg}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
+      <FormField
+        id="username"
+        label="Username"
+        autoComplete="username"
+        placeholder="Enter your username"
+        hint="3-20 characters. Letters, numbers, and underscores only."
+        errors={errors.username}
+      />
 
-      {/* Email field */}
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-300"
-        >
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          aria-describedby={errors.email ? "email-error" : undefined}
-          aria-invalid={errors.email ? "true" : undefined}
-          className="mt-1 block w-full rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Enter your email"
-        />
-        {errors.email && (
-          <div id="email-error" role="alert">
-            {errors.email.map((msg) => (
-              <p key={msg} className="mt-1 text-sm text-red-400">
-                {msg}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
+      <FormField
+        id="email"
+        label="Email"
+        type="email"
+        autoComplete="email"
+        placeholder="Enter your email"
+        errors={errors.email}
+      />
 
-      {/* Password field */}
-      <div>
-        <label
-          htmlFor="password"
-          className="block text-sm font-medium text-gray-300"
-        >
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          autoComplete="new-password"
-          aria-describedby={errors.password ? "password-error" : "password-hint"}
-          aria-invalid={errors.password ? "true" : undefined}
-          className="mt-1 block w-full rounded-lg border border-gray-600 bg-gray-800 px-4 py-2 text-white placeholder-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          placeholder="Enter your password"
-        />
-        <p id="password-hint" className="mt-1 text-xs text-gray-500">
-          Must be 8-72 characters.
-        </p>
-        {errors.password && (
-          <div id="password-error" role="alert">
-            {errors.password.map((msg) => (
-              <p key={msg} className="mt-1 text-sm text-red-400">
-                {msg}
-              </p>
-            ))}
-          </div>
-        )}
-      </div>
+      <FormField
+        id="password"
+        label="Password"
+        type="password"
+        autoComplete="new-password"
+        placeholder="Enter your password"
+        hint="Must be 8-72 characters."
+        errors={errors.password}
+      />
 
       {/* Form-level errors */}
       {errors.form && (
