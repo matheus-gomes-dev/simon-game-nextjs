@@ -56,4 +56,82 @@ describe("GameOverModal", () => {
     const overlay = container.firstElementChild as HTMLElement;
     expect(overlay.className).toContain("animate-");
   });
+
+  it("renders 'Saving score...' when saveStatus is 'saving'", () => {
+    render(
+      <GameOverModal score={5} onPlayAgain={vi.fn()} saveStatus="saving" />
+    );
+    expect(screen.getByText("Saving score...")).toBeTruthy();
+  });
+
+  it("disables Play Again button when saveStatus is 'saving'", () => {
+    render(
+      <GameOverModal score={5} onPlayAgain={vi.fn()} saveStatus="saving" />
+    );
+    const button = screen.getByText("Play Again") as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+  });
+
+  it("renders 'Score saved!' when saveStatus is 'saved'", () => {
+    render(
+      <GameOverModal score={5} onPlayAgain={vi.fn()} saveStatus="saved" />
+    );
+    expect(screen.getByText("Score saved!")).toBeTruthy();
+  });
+
+  it("renders error message when saveStatus is 'error'", () => {
+    const errorMessage = "Failed to save game";
+    render(
+      <GameOverModal
+        score={5}
+        onPlayAgain={vi.fn()}
+        saveStatus="error"
+        saveError={errorMessage}
+      />
+    );
+    expect(screen.getByText(errorMessage)).toBeTruthy();
+  });
+
+  it("does not render 'Score saved!' when there is an error", () => {
+    render(
+      <GameOverModal
+        score={5}
+        onPlayAgain={vi.fn()}
+        saveStatus="error"
+        saveError="Error occurred"
+      />
+    );
+    expect(screen.queryByText("Score saved!")).toBeNull();
+  });
+
+  it("does not render 'Saving score...' when saveStatus is not 'saving'", () => {
+    render(
+      <GameOverModal score={5} onPlayAgain={vi.fn()} saveStatus="saved" />
+    );
+    expect(screen.queryByText("Saving score...")).toBeNull();
+  });
+
+  it("renders Play Again button as enabled when not saving", () => {
+    render(
+      <GameOverModal score={5} onPlayAgain={vi.fn()} saveStatus="saved" />
+    );
+    const button = screen.getByText("Play Again") as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+  });
+
+  it("does not show any save status when saveStatus is not provided", () => {
+    render(<GameOverModal score={5} onPlayAgain={vi.fn()} />);
+    expect(screen.queryByText("Score saved!")).toBeNull();
+    expect(screen.queryByText("Saving score...")).toBeNull();
+    const button = screen.getByText("Play Again") as HTMLButtonElement;
+    expect(button.disabled).toBe(false);
+  });
+
+  it("does not show any save status when saveStatus is 'idle'", () => {
+    render(
+      <GameOverModal score={5} onPlayAgain={vi.fn()} saveStatus="idle" />
+    );
+    expect(screen.queryByText("Score saved!")).toBeNull();
+    expect(screen.queryByText("Saving score...")).toBeNull();
+  });
 });

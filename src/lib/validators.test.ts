@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { registerSchema, loginSchema } from "@/lib/validators";
+import { registerSchema, loginSchema, saveGameSchema } from "@/lib/validators";
 
 describe("registerSchema", () => {
   const validInput = {
@@ -258,5 +258,247 @@ describe("loginSchema", () => {
       const errors = result.error.flatten().fieldErrors;
       expect(errors.email).toBeDefined();
     }
+  });
+});
+
+describe("saveGameSchema", () => {
+  const validInput = {
+    score: 5,
+    sequence: ["green", "red", "yellow", "blue"],
+    startedAt: "2026-03-03T10:00:00.000Z",
+    endedAt: "2026-03-03T10:05:30.000Z",
+    duration: 330,
+  };
+
+  it("accepts valid input", () => {
+    const result = saveGameSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts score of 0", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      score: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects negative score", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      score: -1,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.score).toBeDefined();
+      expect(errors.score![0]).toContain("non-negative");
+    }
+  });
+
+  it("rejects invalid color string", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      sequence: ["green", "purple", "yellow"],
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.sequence).toBeDefined();
+    }
+  });
+
+  it("rejects empty sequence array", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      sequence: [],
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.sequence).toBeDefined();
+      expect(errors.sequence![0]).toContain("at least one");
+    }
+  });
+
+  it("rejects missing score", () => {
+    const result = saveGameSchema.safeParse({
+      sequence: validInput.sequence,
+      startedAt: validInput.startedAt,
+      endedAt: validInput.endedAt,
+      duration: validInput.duration,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.score).toBeDefined();
+    }
+  });
+
+  it("rejects missing sequence", () => {
+    const result = saveGameSchema.safeParse({
+      score: validInput.score,
+      startedAt: validInput.startedAt,
+      endedAt: validInput.endedAt,
+      duration: validInput.duration,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.sequence).toBeDefined();
+    }
+  });
+
+  it("rejects missing startedAt", () => {
+    const result = saveGameSchema.safeParse({
+      score: validInput.score,
+      sequence: validInput.sequence,
+      endedAt: validInput.endedAt,
+      duration: validInput.duration,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.startedAt).toBeDefined();
+    }
+  });
+
+  it("rejects missing endedAt", () => {
+    const result = saveGameSchema.safeParse({
+      score: validInput.score,
+      sequence: validInput.sequence,
+      startedAt: validInput.startedAt,
+      duration: validInput.duration,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.endedAt).toBeDefined();
+    }
+  });
+
+  it("rejects missing duration", () => {
+    const result = saveGameSchema.safeParse({
+      score: validInput.score,
+      sequence: validInput.sequence,
+      startedAt: validInput.startedAt,
+      endedAt: validInput.endedAt,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.duration).toBeDefined();
+    }
+  });
+
+  it("rejects negative duration", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      duration: -10,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.duration).toBeDefined();
+      expect(errors.duration![0]).toContain("non-negative");
+    }
+  });
+
+  it("rejects invalid datetime format for startedAt", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      startedAt: "not-a-date",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.startedAt).toBeDefined();
+    }
+  });
+
+  it("rejects invalid datetime format for endedAt", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      endedAt: "not-a-date",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.endedAt).toBeDefined();
+    }
+  });
+
+  it("accepts all valid SimonColor values", () => {
+    const validColors = ["green", "red", "yellow", "blue"];
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      sequence: validColors,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects non-integer score", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      score: 5.5,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.score).toBeDefined();
+    }
+  });
+
+  it("rejects score exceeding maximum", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      score: 1001,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.score).toBeDefined();
+      expect(errors.score![0]).toContain("maximum");
+    }
+  });
+
+  it("accepts score at maximum boundary", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      score: 1000,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects sequence exceeding maximum length", () => {
+    const longSequence = Array(1002).fill("green");
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      sequence: longSequence,
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.sequence).toBeDefined();
+      expect(errors.sequence![0]).toContain("too long");
+    }
+  });
+
+  it("rejects endedAt before startedAt", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      startedAt: "2026-03-03T10:05:00.000Z",
+      endedAt: "2026-03-03T10:00:00.000Z",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects endedAt equal to startedAt", () => {
+    const result = saveGameSchema.safeParse({
+      ...validInput,
+      startedAt: "2026-03-03T10:00:00.000Z",
+      endedAt: "2026-03-03T10:00:00.000Z",
+    });
+    expect(result.success).toBe(false);
   });
 });

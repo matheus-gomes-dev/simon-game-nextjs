@@ -7,6 +7,10 @@ interface GameOverModalProps {
   score: number;
   /** Callback to restart the game. */
   onPlayAgain: () => void;
+  /** Current status of the game save operation. */
+  saveStatus?: "idle" | "saving" | "saved" | "error";
+  /** Error message if save failed. */
+  saveError?: string | null;
 }
 
 /**
@@ -18,6 +22,8 @@ interface GameOverModalProps {
 export default function GameOverModal({
   score,
   onPlayAgain,
+  saveStatus,
+  saveError = null,
 }: GameOverModalProps) {
   const playAgainRef = useRef<HTMLButtonElement>(null);
 
@@ -52,11 +58,24 @@ export default function GameOverModal({
         <p className="text-2xl text-gray-200">
           Final Score: <span className="font-bold text-white">{score}</span>
         </p>
+
+        {/* Save status feedback */}
+        {saveStatus === "saving" && (
+          <p className="text-sm text-gray-400">Saving score...</p>
+        )}
+        {saveStatus === "saved" && (
+          <p className="text-sm text-green-400">Score saved!</p>
+        )}
+        {saveStatus === "error" && (
+          <p className="text-sm text-red-400">{saveError}</p>
+        )}
+
         <button
           ref={playAgainRef}
           type="button"
           onClick={onPlayAgain}
-          className="px-8 py-3 text-lg font-semibold text-white bg-indigo-600 rounded-full hover:bg-indigo-500 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800"
+          disabled={saveStatus === "saving"}
+          className="px-8 py-3 text-lg font-semibold text-white bg-indigo-600 rounded-full hover:bg-indigo-500 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Play Again
         </button>

@@ -1,9 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSimonGame } from "@/hooks/useSimonGame";
 import SimonBoard from "@/components/game/SimonBoard";
 import GameControls from "@/components/game/GameControls";
 import GameOverModal from "@/components/game/GameOverModal";
+
+/** Save status state machine for the game session save flow. */
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
  * Client component for the Simon game UI.
@@ -11,7 +15,55 @@ import GameOverModal from "@/components/game/GameOverModal";
  * a server-side authentication check before rendering.
  */
 export default function PlayClient() {
-  const { state, startGame, handleTap } = useSimonGame();
+  const { state, startGame, handleTap, startedAtRef } = useSimonGame();
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Save game session when game ends
+  useEffect(() => {
+    if (state.status !== "gameover") return;
+
+    const startedAt = startedAtRef.current;
+    if (!startedAt) return;
+
+    const saveGameSession = async () => {
+      setSaveStatus("saving");
+      setSaveError(null);
+
+      try {
+        const endedAt = new Date();
+        const duration = (endedAt.getTime() - startedAt.getTime()) / 1000;
+
+        const response = await fetch("/api/games", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            score: state.score,
+            sequence: state.sequence,
+            startedAt: startedAt.toISOString(),
+            endedAt: endedAt.toISOString(),
+            duration,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(
+            data.errors?.form?.[0] || "Failed to save game session"
+          );
+        }
+
+        setSaveStatus("saved");
+      } catch (error: unknown) {
+        setSaveError(
+          error instanceof Error ? error.message : "Failed to save game session"
+        );
+        setSaveStatus("error");
+      }
+    };
+
+    saveGameSession();
+  }, [state.status, state.score, state.sequence, startedAtRef]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
@@ -32,7 +84,12 @@ export default function PlayClient() {
       />
 
       {state.status === "gameover" && (
-        <GameOverModal score={state.score} onPlayAgain={startGame} />
+        <GameOverModal
+          score={state.score}
+          onPlayAgain={startGame}
+          saveStatus={saveStatus}
+          saveError={saveError}
+        />
       )}
     </div>
   );
