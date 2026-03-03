@@ -17,6 +17,7 @@ export default defineConfig({
         "src/components/game/**",
         "src/components/auth/**",
         "src/components/ui/**",
+        "src/components/history/**",
         "src/lib/validators.ts",
         "src/types/**",
       ],

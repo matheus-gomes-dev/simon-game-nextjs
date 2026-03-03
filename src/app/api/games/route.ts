@@ -4,6 +4,52 @@ import dbConnect from "@/lib/mongoose";
 import GameSession from "@/models/GameSession";
 import User from "@/models/User";
 import { saveGameSchema } from "@/lib/validators";
+import type { GameHistoryItem } from "@/types/game";
+
+/**
+ * GET /api/games
+ *
+ * Returns the authenticated user's game history, sorted by most recent first.
+ *
+ * Responses:
+ * - 200: `{ games: GameHistoryItem[] }`
+ * - 401: User not authenticated.
+ * - 500: Unexpected server error.
+ */
+export async function GET() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { errors: { form: ["Authentication required"] } },
+        { status: 401 }
+      );
+    }
+
+    await dbConnect();
+
+    const docs = await GameSession.find({ userId: session.user.id })
+      .select("score duration createdAt")
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .lean();
+
+    const games: GameHistoryItem[] = docs.map((doc) => ({
+      id: String(doc._id),
+      score: doc.score,
+      duration: doc.duration,
+      createdAt: doc.createdAt.toISOString(),
+    }));
+
+    return NextResponse.json({ games });
+  } catch (error: unknown) {
+    console.error("Get game history error:", error);
+    return NextResponse.json(
+      { errors: { form: ["An unexpected error occurred. Please try again."] } },
+      { status: 500 }
+    );
+  }
+}
 
 /**
  * POST /api/games

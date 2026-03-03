@@ -24,9 +24,10 @@ describe("Navbar", () => {
     expect(screen.getByText("Log In")).toBeTruthy();
     expect(screen.getByText("Register")).toBeTruthy();
     expect(screen.queryByText("Log Out")).toBeNull();
+    expect(screen.queryByText("History")).toBeNull();
   });
 
-  it("shows user name and Log Out button when authenticated", () => {
+  it("shows user name, History link, and Log Out button when authenticated", () => {
     useSessionMock.mockReturnValue({
       data: {
         user: {
@@ -43,8 +44,28 @@ describe("Navbar", () => {
 
     expect(screen.getByText("Test User")).toBeTruthy();
     expect(screen.getByText("Log Out")).toBeTruthy();
+    expect(screen.getByText("History")).toBeTruthy();
     expect(screen.queryByText("Log In")).toBeNull();
     expect(screen.queryByText("Register")).toBeNull();
+  });
+
+  it("renders History link pointing to /history", () => {
+    useSessionMock.mockReturnValue({
+      data: {
+        user: {
+          id: "123",
+          name: "Test User",
+          email: "test@example.com",
+          username: "testuser",
+        },
+      },
+      status: "authenticated",
+    });
+
+    render(<Navbar />);
+
+    const historyLink = screen.getByText("History");
+    expect(historyLink.closest("a")?.getAttribute("href")).toBe("/history");
   });
 
   it("calls signOut with callbackUrl when Log Out is clicked", () => {
