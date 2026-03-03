@@ -15,6 +15,8 @@ export default defineConfig({
       include: [
         "src/hooks/**",
         "src/components/game/**",
+        "src/components/auth/**",
+        "src/lib/validators.ts",
         "src/types/**",
       ],
     },
