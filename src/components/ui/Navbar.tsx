@@ -27,6 +27,12 @@ export default function Navbar() {
             <div className="h-8 w-20 animate-pulse rounded bg-gray-700" />
           ) : session?.user ? (
             <>
+              <Link
+                href="/history"
+                className="text-sm text-gray-300 transition-colors hover:text-white"
+              >
+                History
+              </Link>
               <span className="text-sm text-gray-300">
                 {session.user.name}
               </span>

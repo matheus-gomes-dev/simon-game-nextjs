@@ -11,6 +11,13 @@ export interface SimonGameState {
   showIndex: number;
 }
 
+export interface GameHistoryItem {
+  id: string;
+  score: number;
+  duration: number;
+  createdAt: string;
+}
+
 export type SimonGameAction =
   | { type: "START_GAME" }
   | { type: "EXTEND_SEQUENCE"; color: SimonColor }
