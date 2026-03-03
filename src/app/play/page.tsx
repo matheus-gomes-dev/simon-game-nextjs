@@ -1,38 +1,19 @@
-"use client";
-
-import { useSimonGame } from "@/hooks/useSimonGame";
-import SimonBoard from "@/components/game/SimonBoard";
-import GameControls from "@/components/game/GameControls";
-import GameOverModal from "@/components/game/GameOverModal";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import PlayClient from "./PlayClient";
 
 /**
- * The main game page. Renders the full Simon game UI:
- * title, controls, board, and a game-over modal when applicable.
+ * Protected game page.
+ *
+ * Checks for an authenticated session server-side.
+ * Unauthenticated users are redirected to /login.
  */
-export default function PlayPage() {
-  const { state, startGame, handleTap } = useSimonGame();
+export default async function PlayPage() {
+  const session = await auth();
 
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
-      <h1 className="text-4xl font-bold text-white sm:text-5xl">
-        Simon Game
-      </h1>
+  if (!session) {
+    redirect("/login");
+  }
 
-      <GameControls
-        score={state.score}
-        status={state.status}
-        onStart={startGame}
-      />
-
-      <SimonBoard
-        activeColor={state.activeColor}
-        status={state.status}
-        onTap={handleTap}
-      />
-
-      {state.status === "gameover" && (
-        <GameOverModal score={state.score} onPlayAgain={startGame} />
-      )}
-    </div>
-  );
+  return <PlayClient />;
 }

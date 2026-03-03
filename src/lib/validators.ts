@@ -25,3 +25,17 @@ export const registerSchema = z.object({
 
 /** TypeScript type inferred from the register validation schema. */
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+/**
+ * Zod schema for validating login input.
+ *
+ * - **email**: Must be a valid email format.
+ * - **password**: Must be non-empty (no length policy enforced on login).
+ */
+export const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+/** TypeScript type inferred from the login validation schema. */
+export type LoginInput = z.infer<typeof loginSchema>;

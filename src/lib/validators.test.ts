@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { registerSchema } from "@/lib/validators";
+import { registerSchema, loginSchema } from "@/lib/validators";
 
 describe("registerSchema", () => {
   const validInput = {
@@ -180,5 +180,83 @@ describe("registerSchema", () => {
       password: "a".repeat(72),
     });
     expect(result.success).toBe(true);
+  });
+});
+
+describe("loginSchema", () => {
+  const validInput = {
+    email: "player@example.com",
+    password: "mypassword",
+  };
+
+  it("accepts valid input", () => {
+    const result = loginSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts a single-character password", () => {
+    const result = loginSchema.safeParse({
+      ...validInput,
+      password: "x",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing email", () => {
+    const result = loginSchema.safeParse({ password: validInput.password });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.email).toBeDefined();
+      expect(errors.email!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("rejects missing password", () => {
+    const result = loginSchema.safeParse({ email: validInput.email });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.password).toBeDefined();
+      expect(errors.password!.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("rejects empty password", () => {
+    const result = loginSchema.safeParse({
+      ...validInput,
+      password: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.password).toBeDefined();
+      expect(errors.password![0]).toContain("required");
+    }
+  });
+
+  it("rejects invalid email format", () => {
+    const result = loginSchema.safeParse({
+      ...validInput,
+      email: "not-an-email",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.email).toBeDefined();
+      expect(errors.email![0]).toContain("valid email");
+    }
+  });
+
+  it("rejects empty email", () => {
+    const result = loginSchema.safeParse({
+      ...validInput,
+      email: "",
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const errors = result.error.flatten().fieldErrors;
+      expect(errors.email).toBeDefined();
+    }
   });
 });
