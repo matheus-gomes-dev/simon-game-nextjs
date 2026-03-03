@@ -123,6 +123,7 @@ export function useSimonGame() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const timersRef = useRef<Set<NodeJS.Timeout>>(new Set());
   const statusRef = useRef(state.status);
+  const startedAtRef = useRef<Date | null>(null);
 
   /** Keep statusRef in sync with the latest status to avoid stale closures. */
   useEffect(() => {
@@ -299,6 +300,7 @@ export function useSimonGame() {
    */
   const startGame = useCallback((): void => {
     clearAllTimers();
+    startedAtRef.current = new Date();
     dispatch({ type: "START_GAME" });
     dispatch({ type: "EXTEND_SEQUENCE", color: getRandomColor() });
   }, [clearAllTimers]);
@@ -321,5 +323,5 @@ export function useSimonGame() {
     [playColorTone, scheduleTimer]
   );
 
-  return { state, startGame, handleTap };
+  return { state, startGame, handleTap, startedAtRef };
 }
