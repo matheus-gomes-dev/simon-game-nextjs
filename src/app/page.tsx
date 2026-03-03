@@ -24,6 +24,13 @@ export default function Home() {
       >
         Play Now
       </Link>
+
+      <Link
+        href="/register"
+        className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+      >
+        Create an account
+      </Link>
     </div>
   );
 }
