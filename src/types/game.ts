@@ -18,6 +18,12 @@ export interface GameHistoryItem {
   createdAt: string;
 }
 
+export interface LeaderboardEntry {
+  rank: number;
+  username: string;
+  highestScore: number;
+}
+
 export type SimonGameAction =
   | { type: "START_GAME" }
   | { type: "EXTEND_SEQUENCE"; color: SimonColor }
