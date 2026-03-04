@@ -66,7 +66,7 @@ export default function PlayClient() {
   }, [state.status, state.score, state.sequence, startedAtRef]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
+    <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-8 p-4">
       <h1 className="text-4xl font-bold text-white sm:text-5xl">
         Simon Game
       </h1>

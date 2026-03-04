@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import GameHistoryTable from "@/components/history/GameHistoryTable";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import type { GameHistoryItem } from "@/types/game";
 import type { SortColumn, SortDirection } from "@/components/history/GameHistoryTable";
 
@@ -58,8 +59,8 @@ export default function HistoryClient() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-16">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-600 border-t-indigo-500" />
+      <div className="py-16">
+        <LoadingSpinner label="Loading game history..." />
       </div>
     );
   }
