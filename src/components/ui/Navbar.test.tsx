@@ -98,6 +98,34 @@ describe("Navbar", () => {
     expect(screen.queryByText("Register")).toBeNull();
   });
 
+  it("renders Leaderboard link for all users", () => {
+    useSessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
+
+    render(<Navbar />);
+
+    const leaderboardLink = screen.getByText("Leaderboard");
+    expect(leaderboardLink).toBeTruthy();
+    expect(leaderboardLink.closest("a")?.getAttribute("href")).toBe("/leaderboard");
+  });
+
+  it("renders Leaderboard link when authenticated", () => {
+    useSessionMock.mockReturnValue({
+      data: {
+        user: {
+          id: "123",
+          name: "Test User",
+          email: "test@example.com",
+          username: "testuser",
+        },
+      },
+      status: "authenticated",
+    });
+
+    render(<Navbar />);
+
+    expect(screen.getByText("Leaderboard")).toBeTruthy();
+  });
+
   it("renders the Simon Game link to home page", () => {
     useSessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
 

@@ -23,6 +23,12 @@ export default function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/leaderboard"
+            className="text-sm text-gray-300 transition-colors hover:text-white"
+          >
+            Leaderboard
+          </Link>
           {status === "loading" ? (
             <div className="h-8 w-20 animate-pulse rounded bg-gray-700" />
           ) : session?.user ? (
