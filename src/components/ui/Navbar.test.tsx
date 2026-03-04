@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Navbar from "@/components/ui/Navbar";
 
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+
 // Mock next-auth/react
 const signOutMock = vi.fn();
 const useSessionMock = vi.fn();
@@ -134,5 +139,44 @@ describe("Navbar", () => {
     const homeLink = screen.getByText("Simon Game");
     expect(homeLink).toBeTruthy();
     expect(homeLink.closest("a")?.getAttribute("href")).toBe("/");
+  });
+
+  it("renders a hamburger menu button", () => {
+    useSessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
+
+    render(<Navbar />);
+
+    const menuButton = screen.getByLabelText("Open menu");
+    expect(menuButton).toBeTruthy();
+  });
+
+  it("toggles mobile menu on hamburger click", () => {
+    useSessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
+
+    render(<Navbar />);
+
+    const menuButton = screen.getByLabelText("Open menu");
+    fireEvent.click(menuButton);
+
+    // After opening, button label changes
+    expect(screen.getByLabelText("Close menu")).toBeTruthy();
+
+    // Mobile menu shows duplicate links
+    const leaderboardLinks = screen.getAllByText("Leaderboard");
+    expect(leaderboardLinks.length).toBe(2);
+  });
+
+  it("closes mobile menu on Escape key", () => {
+    useSessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
+
+    render(<Navbar />);
+
+    // Open menu
+    fireEvent.click(screen.getByLabelText("Open menu"));
+    expect(screen.getByLabelText("Close menu")).toBeTruthy();
+
+    // Press Escape
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.getByLabelText("Open menu")).toBeTruthy();
   });
 });

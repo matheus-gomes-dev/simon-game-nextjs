@@ -53,8 +53,8 @@ export default function GameOverModal({
       aria-labelledby="gameover-title"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-[fadeIn_300ms_ease-out]"
     >
-      <div className="flex flex-col items-center gap-6 rounded-2xl bg-gray-800 p-10 shadow-2xl animate-[scaleIn_300ms_ease-out]">
-        <h2 id="gameover-title" className="text-4xl font-bold text-red-400">Game Over!</h2>
+      <div className="mx-4 flex w-full max-w-sm flex-col items-center gap-6 rounded-2xl bg-gray-800 p-6 shadow-2xl animate-[scaleIn_300ms_ease-out] sm:p-10">
+        <h2 id="gameover-title" className="text-3xl font-bold text-red-400 sm:text-4xl">Game Over!</h2>
         <p className="text-2xl text-gray-200">
           Final Score: <span className="font-bold text-white">{score}</span>
         </p>
