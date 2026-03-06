@@ -11,7 +11,7 @@ During the development of my application, I noticed a certain persistence in Cla
 It also became clear that human supervision of the work done by the AI ​​is fundamental: even with a well-defined workflow that included code review, I encountered trivial problems while doing my own review.
 
 ## 3 — Best Practices Discovered
-Two points particularly caught my attention throughout the course: using AI to document all architectural decisions in the project, and feeding back into the CLAUDE.md file so that it can make decisions based on context. These points not only save tokens and facilitate AI's work, but also greatly help the development team understand the project.
+Two points particularly caught my attention throughout the course: using AI to document all architectural decisions in the project (ADRs), and feeding back issues fixed into the CLAUDE.md file (Self-Heal Pattern) so that it can make decisions based on knowledge acquired throughout development. These points not only improve Token Efficiency and facilitate AI's work, but also greatly help the development team understand the project.
 
 ## 4 — Client Application Ideas
 Since AI-assisted software development is relatively new, I see that legacy projects in companies are often not adapted to allow the best of artificial intelligence to be extracted within their scope. For the potential of AI to be utilized within the reality of these clients, I believe it is necessary to review and document the current structure of each project in an intelligible way so that AI-assisted development is viable.
