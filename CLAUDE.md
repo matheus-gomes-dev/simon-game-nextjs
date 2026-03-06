@@ -139,6 +139,10 @@ AUTH_URL=         # App URL (http://localhost:3000 in dev)
 - **Commit prefix:** `feat:`, `fix:`, `refactor:`, `test:`, `docs:`
 - **Commit footer:** Include `AB#{workItemId}` to link Azure DevOps work items
 
+## Agent Preference
+
+- **Local-level agents should be used before user-level agents whenever possible.** When delegating work to sub-agents, prefer project-scoped (local) agents over user-scoped agents to keep context and actions relevant to this repository.
+
 ## Conventions
 
 - Path alias: `@/*` maps to `src/*`
