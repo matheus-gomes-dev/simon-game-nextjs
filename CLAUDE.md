@@ -153,3 +153,4 @@ AUTH_URL=         # App URL (http://localhost:3000 in dev)
 - Protected routes check `auth()` server-side and redirect to `/login`
 - `/play` requires authentication — unauthenticated users are redirected to `/login`
 - `/history` and game save APIs require authentication
+- **React components must avoid code repetition.** Extract repeated JSX or logic into smaller, reusable sub-components. Break down large components as needed to keep them focused and DRY.
