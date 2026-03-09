@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useSimonGame } from "@/hooks/useSimonGame";
 import SimonBoard from "@/components/game/SimonBoard";
 import GameControls from "@/components/game/GameControls";
@@ -11,17 +12,20 @@ type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /**
  * Client component for the Simon game UI.
- * Extracted to allow the play page to perform
- * a server-side authentication check before rendering.
+ * Accessible to both authenticated and guest users.
+ * Game sessions are only saved for authenticated users.
  */
 export default function PlayClient() {
+  const { data: session } = useSession();
+  const isAuthenticated = !!session?.user;
   const { state, startGame, handleTap, startedAtRef } = useSimonGame();
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // Save game session when game ends
+  // Save game session when game ends (authenticated users only)
   useEffect(() => {
     if (state.status !== "gameover") return;
+    if (!isAuthenticated) return;
 
     const startedAt = startedAtRef.current;
     if (!startedAt) return;
@@ -63,7 +67,7 @@ export default function PlayClient() {
     };
 
     saveGameSession();
-  }, [state.status, state.score, state.sequence, startedAtRef]);
+  }, [state.status, state.score, state.sequence, startedAtRef, isAuthenticated]);
 
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-8 p-4">
@@ -87,6 +91,7 @@ export default function PlayClient() {
         <GameOverModal
           score={state.score}
           onPlayAgain={startGame}
+          isAuthenticated={isAuthenticated}
           saveStatus={saveStatus}
           saveError={saveError}
         />

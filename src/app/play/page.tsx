@@ -1,19 +1,12 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/auth";
 import PlayClient from "./PlayClient";
 
 /**
- * Protected game page.
+ * Game page — accessible to all users.
  *
- * Checks for an authenticated session server-side.
- * Unauthenticated users are redirected to /login.
+ * Both authenticated and unauthenticated users can play.
+ * Game save and history features require authentication
+ * (enforced by the API routes).
  */
-export default async function PlayPage() {
-  const session = await auth();
-
-  if (!session) {
-    redirect("/login");
-  }
-
+export default function PlayPage() {
   return <PlayClient />;
 }

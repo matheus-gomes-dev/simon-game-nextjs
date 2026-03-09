@@ -33,7 +33,7 @@ describe("Navbar", () => {
     expect(screen.getAllByText("Register").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("Log Out")).toBeNull();
     expect(screen.queryByText("History")).toBeNull();
-    expect(screen.queryByText("Play")).toBeNull();
+    expect(screen.getAllByText("Play").length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows user name, History link, and Log Out button when authenticated", () => {
@@ -337,7 +337,7 @@ describe("Navbar", () => {
     });
   });
 
-  describe("Play Link for Authenticated Users", () => {
+  describe("Play Link for All Users", () => {
     it("shows Play link for authenticated users", () => {
       useSessionMock.mockReturnValue({
         data: {
@@ -358,12 +358,14 @@ describe("Navbar", () => {
       expect(playLinks[0].closest("a")?.getAttribute("href")).toBe("/play");
     });
 
-    it("does not show Play link for unauthenticated users", () => {
+    it("shows Play link for unauthenticated users", () => {
       useSessionMock.mockReturnValue({ data: null, status: "unauthenticated" });
 
       render(<Navbar />);
 
-      expect(screen.queryByText("Play")).toBeNull();
+      const playLinks = screen.getAllByText("Play");
+      expect(playLinks[0]).toBeTruthy();
+      expect(playLinks[0].closest("a")?.getAttribute("href")).toBe("/play");
     });
   });
 
@@ -374,7 +376,7 @@ describe("Navbar", () => {
       render(<Navbar />);
 
       const skeletons = document.querySelectorAll(".animate-pulse");
-      expect(skeletons.length).toBeGreaterThanOrEqual(3);
+      expect(skeletons.length).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -554,8 +556,8 @@ describe("Navbar", () => {
       fireEvent.click(hamburgerButton);
 
       await waitFor(() => {
-        // The first mobile menu link (Leaderboard) should receive focus
-        expect(document.activeElement?.textContent).toContain("Leaderboard");
+        // The first mobile menu link (Play) should receive focus
+        expect(document.activeElement?.textContent).toContain("Play");
       });
     });
   });
