@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 
 interface GameOverModalProps {
   /** Final score when the game ended. */
   score: number;
   /** Callback to restart the game. */
   onPlayAgain: () => void;
+  /** Whether the current user is authenticated. */
+  isAuthenticated: boolean;
   /** Current status of the game save operation. */
   saveStatus?: "idle" | "saving" | "saved" | "error";
   /** Error message if save failed. */
@@ -22,6 +25,7 @@ interface GameOverModalProps {
 export default function GameOverModal({
   score,
   onPlayAgain,
+  isAuthenticated,
   saveStatus,
   saveError = null,
 }: GameOverModalProps) {
@@ -59,15 +63,38 @@ export default function GameOverModal({
           Final Score: <span className="font-bold text-white">{score}</span>
         </p>
 
-        {/* Save status feedback */}
-        {saveStatus === "saving" && (
+        {/* Save status feedback (authenticated users) */}
+        {isAuthenticated && saveStatus === "saving" && (
           <p className="text-sm text-gray-400">Saving score...</p>
         )}
-        {saveStatus === "saved" && (
+        {isAuthenticated && saveStatus === "saved" && (
           <p className="text-sm text-green-400">Score saved!</p>
         )}
-        {saveStatus === "error" && (
+        {isAuthenticated && saveStatus === "error" && (
           <p className="text-sm text-red-400">{saveError}</p>
+        )}
+
+        {/* Guest prompt */}
+        {!isAuthenticated && (
+          <div className="flex flex-col items-center gap-2 text-center">
+            <p className="text-sm text-gray-400">
+              Sign in to save your scores and appear on the leaderboard!
+            </p>
+            <div className="flex gap-3">
+              <Link
+                href="/login"
+                className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 transition-colors"
+              >
+                Log In
+              </Link>
+              <Link
+                href="/register"
+                className="px-4 py-2 text-sm font-medium text-indigo-400 border border-indigo-500 rounded-lg hover:bg-indigo-500/10 transition-colors"
+              >
+                Register
+              </Link>
+            </div>
+          </div>
         )}
 
         <button

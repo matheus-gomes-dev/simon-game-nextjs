@@ -76,13 +76,9 @@ export default function Navbar() {
     <>
       <div className="h-8 w-24 animate-pulse rounded bg-gray-700" />
       <div className="h-8 w-20 animate-pulse rounded bg-gray-700" />
-      <div className="h-8 w-16 animate-pulse rounded bg-gray-700" />
     </>
   ) : session?.user ? (
     <>
-      <Link href="/play" className={getLinkClasses("/play")}>
-        Play
-      </Link>
       <Link href="/history" className={getLinkClasses("/history")}>
         History
       </Link>
@@ -123,6 +119,9 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden items-center gap-4 md:flex">
+          <Link href="/play" className={getLinkClasses("/play")}>
+            Play
+          </Link>
           <Link href="/leaderboard" className={getLinkClasses("/leaderboard")}>
             Leaderboard
           </Link>
@@ -170,6 +169,12 @@ export default function Navbar() {
         <div className="mx-auto flex max-w-5xl flex-col gap-1 px-4 py-3">
           <Link
             ref={firstMobileMenuLinkRef}
+            href="/play"
+            className={`${getLinkClasses("/play")} py-3`}
+          >
+            Play
+          </Link>
+          <Link
             href="/leaderboard"
             className={`${getLinkClasses("/leaderboard")} py-3`}
           >
@@ -179,13 +184,9 @@ export default function Navbar() {
             <>
               <div className="h-11 w-24 animate-pulse rounded bg-gray-700" />
               <div className="h-11 w-20 animate-pulse rounded bg-gray-700" />
-              <div className="h-11 w-16 animate-pulse rounded bg-gray-700" />
             </>
           ) : session?.user ? (
             <>
-              <Link href="/play" className={`${getLinkClasses("/play")} py-3`}>
-                Play
-              </Link>
               <Link href="/history" className={`${getLinkClasses("/history")} py-3`}>
                 History
               </Link>
