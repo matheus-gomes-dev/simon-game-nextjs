@@ -91,6 +91,7 @@ export default function PlayClient() {
         <GameOverModal
           score={state.score}
           onPlayAgain={startGame}
+          isAuthenticated={isAuthenticated}
           saveStatus={saveStatus}
           saveError={saveError}
         />
