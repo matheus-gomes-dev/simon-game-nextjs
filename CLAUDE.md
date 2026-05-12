@@ -1,197 +1,156 @@
-# CLAUDE.md - Simon Game
+# Simon Game — Project Guide
 
-## Project Overview
+## Overview
 
-A browser-based Simon memory game. Players watch a sequence of colored flashes and must repeat the sequence. Each successful round adds one more color to the sequence.
+Classic Simon memory game built as a web application. Users must register and log in to play. Authenticated users get score persistence, game history, and leaderboard eligibility.
 
 ## Tech Stack
 
-- Next.js 16 with App Router
-- TypeScript (strict mode)
-- Tailwind CSS 4
-- React 19
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript 5 (strict mode)
+- **UI:** React 19, Tailwind CSS 4
+- **Database:** MongoDB + Mongoose
+- **Auth:** Auth.js v5 (Credentials provider, JWT sessions)
+- **Validation:** Zod
 
 ## Project Structure
 
 ```
 src/
   app/
-    layout.tsx       # Root layout with metadata and fonts
-    page.tsx         # Main page, renders the game (client component)
-    globals.css      # Global styles / Tailwind imports
+    api/auth/[...nextauth]/route.ts   — Auth.js route handler
+    api/register/route.ts             — User registration
+    api/games/route.ts                — POST save game, GET user history
+    api/games/[id]/route.ts           — GET specific game
+    api/leaderboard/route.ts          — GET top scores (public)
+    login/page.tsx
+    register/page.tsx
+    play/page.tsx                     — Game page (protected)
+    history/page.tsx                  — User's past games (protected)
+    leaderboard/page.tsx              — Global leaderboard (public)
+    layout.tsx
+    page.tsx                          — Landing page
+    globals.css
   components/
-    SimonBoard.tsx   # 2x2 grid of colored buttons
-    SimonButton.tsx  # Individual colored button with active/inactive states
-    GameControls.tsx # Start button, score display, status messages
+    game/        — SimonBoard, SimonButton, GameControls, GameOverModal
+    auth/        — LoginForm, RegisterForm
+    ui/          — Navbar, LoadingSpinner
+    history/     — GameHistoryTable
+    leaderboard/ — LeaderboardTable
   hooks/
-    useSimonGame.ts  # Core game logic: sequence generation, validation, state
+    useSimonGame.ts                   — Core game logic (useReducer)
+  lib/
+    mongodb.ts                        — Native MongoClient (Auth.js adapter)
+    mongoose.ts                       — Cached Mongoose connection
+    validators.ts                     — Zod schemas
+  models/
+    User.ts                           — User schema (extends Auth.js)
+    GameSession.ts                    — Game session schema
   types/
-    game.ts          # Shared types: SimonColor, GameStatus
+    game.ts                           — SimonColor, GameStatus, SimonGameState
+    next-auth.d.ts                    — Auth.js type extensions
+  auth.ts                             — Auth.js configuration
 ```
 
-## Key Patterns
+## Database Schema
 
-- **Client components**: The game is fully client-side. `page.tsx` and all components use `"use client"`.
-- **Game state hook**: All game logic lives in `useSimonGame`. Components are purely presentational.
-- **Four colors**: green (top-left), red (top-right), yellow (bottom-left), blue (bottom-right).
-- **Game states**: `idle` (waiting to start), `showing` (playing sequence animation), `playing` (waiting for player input), `gameover` (wrong input).
+### `users` collection
+```typescript
+{
+  _id: ObjectId
+  name: string
+  email: string          // unique index
+  username: string       // unique index
+  passwordHash: string   // bcrypt, cost 12
+  highestScore: number   // denormalized for leaderboard
+  gamesPlayed: number
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
+### `game_sessions` collection
+```typescript
+{
+  _id: ObjectId
+  userId: ObjectId       // indexed, references users
+  score: number
+  sequence: string[]     // full color sequence
+  startedAt: Date
+  endedAt: Date
+  duration: number       // seconds
+  createdAt: Date
+}
+```
+
+### Indexes
+- `users`: `{ email: 1 }` unique, `{ username: 1 }` unique, `{ highestScore: -1 }`
+- `game_sessions`: `{ userId: 1, createdAt: -1 }`, `{ score: -1 }`
+
+## Architecture Decisions
+
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Auth | Auth.js v5 + Credentials + JWT | Native Next.js integration, MongoDB adapter |
+| ODM | Mongoose | Schema validation, TypeScript types |
+| State | `useReducer` in custom hook | Game transitions are complex, no global store needed |
+| Leaderboard | Denormalized `highestScore` on User | Read-heavy query, avoids aggregation |
+| API style | Route Handlers | REST semantics, easier to test than Server Actions |
+| Validation | Zod | TypeScript-first, composable schemas |
+| Rendering | Leaderboard = Server Component, Game = Client Component | Match interactivity needs |
+
+## Implementation Phases
+
+### Phase 1 — Foundation
+Next.js project init + fully playable client-side Simon Game (no auth, no DB).
+
+### Phase 2 — Database + Authentication
+MongoDB connections, Auth.js v5 config, registration/login pages, protected routes.
+
+### Phase 3 — Game Persistence
+Save game sessions to MongoDB for authenticated users, track high scores, server-side sequence validation.
+
+### Phase 4 — History + Leaderboard
+Paginated game history for authenticated users, public server-rendered leaderboard.
+
+### Phase 5 — Polish
+Loading states, responsive design, rate limiting, accessibility.
 
 ## Commands
 
 ```bash
-npm run dev    # Start dev server on http://localhost:3000
-npm run build  # Production build
-npm run lint   # Run ESLint
+npm run dev       # Start development server
+npm run build     # Production build
+npm run lint      # Run ESLint
 ```
 
-## Code Conventions
-
-- Use `@/` path alias for imports from `src/`
-- Tailwind utility classes for all styling (no CSS modules)
-- Functional components with TypeScript interfaces for props
-- Game logic separated from rendering via custom hooks
-
-## User Stories
-
-### Story 1: Start a New Game
-**As a** player, **I can** click a "Start Game" button **so that** a new round begins and the first color sequence is shown.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | S |
-| **Dependencies** | None |
-
-**Acceptance Criteria:**
-1. A "Start Game" button is visible when the game is idle
-2. Clicking it transitions the game to the "showing" state and plays a 1-color sequence
-3. The button is disabled/hidden while a sequence is playing
-4. The score resets to 0 on a new game
-
----
-
-### Story 2: Watch the Color Sequence
-**As a** player, **I can** watch the board light up a sequence of colors **so that** I know which pattern to repeat.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | M |
-| **Dependencies** | Story 1 |
-
-**Acceptance Criteria:**
-1. Each color in the sequence lights up (glow effect) one at a time
-2. There is a visible pause (~300ms) between each color flash
-3. Each flash lasts long enough to be clearly seen (~600ms)
-4. The player cannot click buttons while the sequence is playing
-5. After the sequence finishes, the game transitions to "playing" state
-
----
-
-### Story 3: Repeat the Sequence
-**As a** player, **I can** click the colored buttons to repeat the shown sequence **so that** I can prove I memorized it and advance to the next round.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | M |
-| **Dependencies** | Story 2 |
-
-**Acceptance Criteria:**
-1. Clicking a button provides immediate visual feedback (brief glow)
-2. If the player clicks the correct color, the game accepts it and waits for the next input
-3. After completing the full sequence correctly, a new color is appended and the next round begins
-4. If the player clicks the wrong color, the game transitions to "game over"
-
----
-
-### Story 4: See My Current Score
-**As a** player, **I can** see my current score (sequence length) during gameplay **so that** I know how far I've progressed.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | S |
-| **Dependencies** | Story 1 |
-
-**Acceptance Criteria:**
-1. The current score is displayed on screen during active gameplay
-2. The score increments by 1 each time a round is completed successfully
-3. A status message reflects the current game state (e.g., "Watch carefully!", "Your turn!", "Game Over!")
-
----
-
-### Story 5: Restart After Game Over
-**As a** player, **I can** start a new game after losing **so that** I can try again without refreshing the page.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | S |
-| **Dependencies** | Story 3 |
-
-**Acceptance Criteria:**
-1. When the game is over, a "Play Again" button is shown
-2. Clicking it resets the sequence, score, and game state
-3. A new round starts immediately after clicking
-4. The previous score is no longer displayed (replaced by the new score of 0)
-
----
-
-### Story 6: Responsive Board Layout
-**As a** player, **I can** play the game on both mobile and desktop screens **so that** the experience works regardless of device.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | S |
-| **Dependencies** | None |
-
-**Acceptance Criteria:**
-1. The 4-color board renders as a 2x2 grid on all screen sizes
-2. Buttons scale appropriately (smaller on mobile, larger on desktop)
-3. Controls and score are accessible without horizontal scrolling
-4. Buttons are large enough to tap comfortably on a touch screen
-
----
-
-### Story 7: Add Sound Effects
-**As a** player, **I can** hear a distinct tone for each color button **so that** I get audio feedback that reinforces the visual pattern.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | M |
-| **Dependencies** | Story 2, Story 3 |
-
-**Acceptance Criteria:**
-1. Each of the 4 colors plays a unique tone when activated
-2. Tones play during both the sequence playback and the player's input
-3. A distinct "error" sound plays on game over
-4. Sound does not block or delay the game animation timing
-
----
-
-### Story 8: Persist High Score
-**As a** player, **I can** see my all-time high score across sessions **so that** I have a goal to beat.
-
-| Detail | Value |
-|---|---|
-| **Complexity** | S |
-| **Dependencies** | Story 4 |
-
-**Acceptance Criteria:**
-1. The highest score achieved is saved to `localStorage`
-2. The high score is displayed alongside the current score
-3. The high score updates immediately when the player surpasses it
-4. The high score persists after closing and reopening the browser
-
----
-
-### Story Dependency Graph
+## Environment Variables
 
 ```
-Story 1 (Start Game)
-  ├── Story 2 (Watch Sequence)
-  │     └── Story 3 (Repeat Sequence)
-  │           ├── Story 5 (Restart)
-  │           └── Story 7 (Sound Effects)
-  ├── Story 4 (Score Display)
-  │     └── Story 8 (High Score)
-  └── Story 6 (Responsive Layout)  [independent]
+MONGODB_URI=      # MongoDB connection string
+AUTH_SECRET=      # Auth.js secret (min 32 chars)
+AUTH_URL=         # App URL (http://localhost:3000 in dev)
 ```
 
-> **Note:** Stories 1–6 represent the core gameplay loop and are already implemented. Stories 7 and 8 are natural next enhancements — realistic in scope for a training project without over-engineering.
+## Git Workflow
+
+- **PR target branch:** `certification-delivery` (NOT `master`)
+- **Feature branches:** `feat/us-{id}-{short-description}` (e.g., `feat/us-2-register-account`)
+- **Commit prefix:** `feat:`, `fix:`, `refactor:`, `test:`, `docs:`
+- **Commit footer:** Include `AB#{workItemId}` to link Azure DevOps work items
+
+## Agent Preference
+
+- **Local-level agents should be used before user-level agents whenever possible.** When delegating work to sub-agents, prefer project-scoped (local) agents over user-scoped agents to keep context and actions relevant to this repository.
+
+## Conventions
+
+- Path alias: `@/*` maps to `src/*`
+- Game types: `SimonColor` = `"green" | "red" | "yellow" | "blue"`, `GameStatus` = `"idle" | "playing" | "showing" | "gameover"`
+- Passwords hashed with bcrypt, cost factor 12
+- JWT sessions with 7-day expiry
+- All API inputs validated with Zod before processing
+- Protected routes check `auth()` server-side and redirect to `/login`
+- `/play` requires authentication — unauthenticated users are redirected to `/login`
+- `/history` and game save APIs require authentication
+- **React components must avoid code repetition.** Extract repeated JSX or logic into smaller, reusable sub-components. Break down large components as needed to keep them focused and DRY.

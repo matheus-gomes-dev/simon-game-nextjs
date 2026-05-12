@@ -1,24 +1,36 @@
-"use client";
+import Link from "next/link";
 
-import SimonBoard from "@/components/SimonBoard";
-import GameControls from "@/components/GameControls";
-import { useSimonGame } from "@/hooks/useSimonGame";
-
+/**
+ * Landing page for the Simon Game application.
+ *
+ * Displays the game title, a brief description, and a prominent
+ * call-to-action linking to the play page.
+ */
 export default function Home() {
-  const { status, score, activeColor, startGame, handleColorPress } =
-    useSimonGame();
-
-  const boardDisabled = status !== "playing";
-
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-8 bg-zinc-900 p-4">
-      <h1 className="text-4xl font-bold text-white">Simon</h1>
-      <SimonBoard
-        activeColor={activeColor}
-        disabled={boardDisabled}
-        onColorPress={handleColorPress}
-      />
-      <GameControls status={status} score={score} onStart={startGame} />
+    <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-4">
+      <h1 className="text-5xl font-bold text-white sm:text-6xl">
+        Simon Game
+      </h1>
+
+      <p className="max-w-md text-center text-lg text-gray-300">
+        Test your memory by repeating increasingly longer color sequences.
+        How far can you go?
+      </p>
+
+      <Link
+        href="/play"
+        className="px-8 py-3 text-lg font-semibold text-white bg-indigo-600 rounded-full hover:bg-indigo-500 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 focus:ring-offset-gray-900"
+      >
+        Play Now
+      </Link>
+
+      <Link
+        href="/register"
+        className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+      >
+        Create an account
+      </Link>
     </div>
   );
 }

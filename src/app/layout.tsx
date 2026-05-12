@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import AuthSessionProvider from "@/components/auth/SessionProvider";
+import Navbar from "@/components/ui/Navbar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Simon Game",
-  description: "A classic Simon memory game built with Next.js",
+  description:
+    "Classic Simon memory game. Repeat increasingly longer color sequences to test your memory.",
 };
 
 export default function RootLayout({
@@ -25,9 +28,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-white`}
       >
-        {children}
+        <AuthSessionProvider>
+          <Navbar />
+          <main>{children}</main>
+        </AuthSessionProvider>
       </body>
     </html>
   );

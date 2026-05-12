@@ -1,0 +1,27 @@
+{
+  "provider": "ado",
+  "method": "cli",
+  "org": "https://dev.azure.com/zartis-digital",
+  "project": "NeXtgineer Training - Matheus Delima",
+  "discoveredAt": "2026-02-27T00:00:00Z",
+  "expiresAt": "2026-03-29T00:00:00Z",
+  "workItemTypes": {
+    "story": "User Story",
+    "bug": "Bug",
+    "task": "Task",
+    "feature": "Feature"
+  },
+  "fieldMappings": {
+    "title": "System.Title",
+    "description": "System.Description",
+    "acceptanceCriteria": "Microsoft.VSTS.Common.AcceptanceCriteria",
+    "storyPoints": "Microsoft.VSTS.Scheduling.StoryPoints",
+    "priority": "Microsoft.VSTS.Common.Priority",
+    "state": "System.State",
+    "parent": "System.Parent"
+  },
+  "fallbacks": {
+    "acceptanceCriteria": "appendToDescription",
+    "storyPoints": null
+  }
+}
